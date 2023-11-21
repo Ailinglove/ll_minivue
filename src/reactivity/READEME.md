@@ -15,6 +15,20 @@
 ## reactive and effect
 
 ## scheduler 任务调度器
+通过effect的第二个参数给定的一个scheduler的fn
+effect第一次执行的时候还会执行fn
+当响应式对象 set update 不会执行fn 而是执行scheduler
+当如果执行runner耳朵时候，会再次执行fn
+
+## stop
+
+stop(runner)调用之后 effect副作用函数不再更新，也就是当调用stop的时候，清除掉effect
+
+## onStop
+调用stop的时候，如果有onStop则onStop函数调用一次
+
+
+
 
 
 
