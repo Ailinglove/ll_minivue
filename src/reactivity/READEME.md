@@ -27,6 +27,36 @@ stop(runner)调用之后 effect副作用函数不再更新，也就是当调用s
 ## onStop
 调用stop的时候，如果有onStop则onStop函数调用一次
 
+## readonly
+const obj = readonly({}) obj则不可以被修改
+重构前
+``` 
+get: function(target, key){
+ xxxxx
+ // 内部需要根据是否是readonly判断是否要依赖收集，readonly不需要触发依赖收集
+}
+```
+重构后
+```
+function createGetter(isReadonly=false){
+  return function get(target, key) {
+    const res = Reflect.get(target, key);
+      if(!isReadonly){
+        //  依赖收集 
+        track(target, key);
+      }
+    return res;
+  }
+}
+
+get: createGetter(),
+
+get: createGetter(true)
+```
+为了只调用一次createGetter, 在初始化的时候写一个变量 const get = createGetter();，用get的时候只需要 get: get 即可
+
+
+
 
 
 
