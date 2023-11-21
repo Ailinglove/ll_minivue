@@ -1,17 +1,14 @@
-let activeEffect; // 全局的依赖
 
 class ReactiveEffect{
-  private _fn;
+  private _fn: any;
 
-  constructor(fn:any){
+  constructor(fn, public scheduler?){
     this._fn = fn;
   }
   run(){
     // 运行传过来的fn函数
-    this._fn();
     activeEffect = this;
-    console.log('yunxingrun', activeEffect)
-
+    return this._fn();
   }
 }
 
@@ -30,7 +27,7 @@ export function track(target, key){
     deps = new Set();
     depsMap.set(key, deps)
   }
-  deps.add(activeEffect)
+  deps.add(activeEffect);
 }
 
 export function trigger(target, key){
@@ -38,12 +35,20 @@ export function trigger(target, key){
   const depsMap = targetMap.get(target);
   const deps = depsMap.get(key);
   for (const effect of deps) {
-    effect?.run()
+    if(effect.scheduler){
+      effect.scheduler();
+    }else{
+      effect?.run()
+    }
   }
 }
 
-export function effect(fn){
-  // 调用即运行
-  const reactiveEffect = new ReactiveEffect(fn);
+let activeEffect; // 全局的依赖
+
+export function effect(fn, options:any={}){
+
+  const reactiveEffect = new ReactiveEffect(fn, options.scheduler);
   reactiveEffect.run();
+
+  return reactiveEffect.run.bind(reactiveEffect)
 }
